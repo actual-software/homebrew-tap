@@ -42,13 +42,12 @@ jobs:
           # Update version
           sed -i '' "s/version \".*\"/version \"$VERSION\"/" Formula/rulectl.rb
           
-          # Update SHA256 hashes
-          sed -i '' "s/sha256 \"INTEL_SHA256_PLACEHOLDER\"/sha256 \"$INTEL_SHA\"/" Formula/rulectl.rb
-          sed -i '' "s/sha256 \"ARM_SHA256_PLACEHOLDER\"/sha256 \"$ARM_SHA\"/" Formula/rulectl.rb
+          # Update SHA256 hashes - handle both placeholders and existing hashes
+          # For Intel (first occurrence after "Hardware::CPU.intel?")
+          sed -i '' '/Hardware::CPU.intel?/,/sha256/ s/sha256 "[^"]*"/sha256 "'$INTEL_SHA'"/' Formula/rulectl.rb
           
-          # Also update any existing SHA256 values (for updates)
-          sed -i '' "s/sha256 \"[a-f0-9]\{64\}\" # intel/sha256 \"$INTEL_SHA\" # intel/" Formula/rulectl.rb
-          sed -i '' "s/sha256 \"[a-f0-9]\{64\}\" # arm/sha256 \"$ARM_SHA\" # arm/" Formula/rulectl.rb
+          # For ARM (first occurrence after "Hardware::CPU.arm?")  
+          sed -i '' '/Hardware::CPU.arm?/,/sha256/ s/sha256 "[^"]*"/sha256 "'$ARM_SHA'"/' Formula/rulectl.rb
           
           echo "Formula updated!"
           cat Formula/rulectl.rb
